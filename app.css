@@ -1,0 +1,449 @@
+/* General */
+* {
+    margin: 0;
+    border: 0;
+    padding: 0;
+}
+
+body {
+    color: #222;
+    font-family: Arial, Helvetica, sans-serif;
+    overflow: hidden;
+
+    height: 100vh;
+    display: grid;
+    grid-template-rows: 56px 1fr 40px;
+    grid-template-columns: 300px 1fr 320px;
+
+}
+
+/* SVG Canvas */
+#canvas {
+    grid-row: 2;
+    grid-column: 2;
+}
+
+#reddit_graph {
+    height: 100% !important;
+    width: 100% !important;
+    max-height: 100%;
+}
+
+
+.node {
+    fill: #6c757d;
+    stroke: #343a40;
+    stroke-width: 2px;
+    filter: url(#dropshadow);
+}
+
+.link {
+    stroke: #6c757d;
+    stroke-width: 1.5px;
+    marker-end: url(#arrow);
+}
+
+.title {
+    padding: 5px 0px 10px 0px;
+    text-align: center;
+    font-family: 'Segoe UI';
+    font-size: 10pt;
+    font-weight: 600;
+}
+
+.version {
+    font-size: 6pt;
+    font-family: Arial, Helvetica, sans-serif;
+    text-align: right;
+    margin-left: 3px;
+    font-weight: normal;
+}
+
+/* Menu Bar */
+table.menu {
+    display: inline-table;
+    width: 100%;
+}
+
+td.paramlabel {
+    width: 110px;
+    padding: 0px 15px 3px 0px;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+td.param {
+    padding: 0px 0px 3px 5px;
+    width: 45px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-align: right;
+}
+
+.menu_toggler + .menu {
+    display: none;
+}
+
+.menu_toggler:checked + .menu {
+    display: inline-table;
+}
+
+input.filelabel {
+    width: 145px;
+    background: #eee;
+    padding: 2pt;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 9pt;
+}
+
+.paramspinbox {
+    width: 45px;
+    text-align: right;
+    font-size: 10pt;
+    padding: 0.2em 0.1em;
+}
+
+#menubar {
+    grid-column: 1;
+    grid-row: 2;
+    align-self: stretch;
+
+    padding: 0px 5px 5px 5px;
+    background-color: steelblue;
+}
+
+.controls {
+    font-size: 9pt;
+    overflow-y: scroll;
+    scrollbar-width: thin;
+}
+
+select {
+    width: 100%;
+    border-radius: 4px;
+    border: 1px solid transparent;
+    padding: 4px;
+    background-color: white;
+}
+select:focus, select:hover {
+    border: 1px solid #ccc;
+}
+
+.controls button {
+    background: transparent;
+    border: 2px solid transparent;
+    box-sizing: border-box;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1;
+    padding: 10px 10px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    outline: none;
+    background: #0fae8d;
+    color: #fff;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
+    transition: all 0.1s ease-in-out 0s;
+}
+
+.controls button:hover {
+    background: #13d7ae;
+}
+
+.controls button:active,
+.controls button:focus {
+    background: #0fae8d;
+}
+
+.controls .switch {
+    position: relative;
+    display: inline-block;
+    width: 34px;
+    height: 20px;
+}
+
+.controls .switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.controls input[type="range"] {
+    width: 100%;
+}
+
+.controls .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: 0.1s;
+    border-radius: 20px;
+}
+
+.controls .slider:before {
+    position: absolute;
+    content: "";
+    height: 14px;
+    width: 14px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: 0.1s;
+    border-radius: 50%;
+}
+
+.controls input:checked + .slider {
+    background-color: #4f57c4; /*#34c759*/
+}
+
+.controls input:focus + .slider {
+    box-shadow: 0 0 1px #5b4fc4; /*#34c759*/
+}
+
+.controls input:checked + .slider:before {
+    transform: translateX(14px);
+}
+
+.controls fieldset {
+    margin: 5px 5px 10px 5px;
+    padding: 7px;
+    background: white;
+    border: 1px solid rgb(200, 200, 200);
+}
+
+.controls fieldset legend label {
+    font-size: 8pt;
+    padding: 2px 5px 2px 5px;
+    background: white;
+    border: 1px solid transparent;
+}
+
+.controls fieldset legend label.toggler {
+    cursor: pointer;
+}
+
+.controls fieldset legend label.toggler:hover {
+    border: 1px solid #bbb;
+    background: #f6f6f6;
+}
+
+.controls fieldset .btn {
+    margin: 15px 0px 5px 0px;
+    text-align: center;
+}
+
+input.button {
+    padding: 1px 4px;
+}
+
+#tooltip {
+    position: absolute;
+    display: block;
+    font-size: 11pt;
+    visibility: hidden;
+    border-radius: 0.1rem;
+    background-color: rgba(90, 90, 90, 0.95);
+    color: white;
+    padding: 0.4em 0.4em;
+    white-space: pre-line; 
+    max-width: 400px;
+}
+
+/* Overlays */
+#overlay {
+    position: fixed;
+    height: 100%;
+    width: 100%;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 999;
+}
+
+#background {
+    position: fixed;
+    height: 100%;
+    width: 100%;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-color: black;
+    opacity: 0.5;
+}
+
+.modal {
+    position: absolute;
+    width: auto;
+    height: auto;
+    padding: 2em 2em 1em 2em;
+    top: 50%;
+    left: 50%;
+    background-color: rgb(240, 240, 240);
+    transform: translate(-50%, -50%);
+    box-shadow: 0px 8px 12px 1px rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    text-align: center;
+    z-index: 99;
+}
+
+.modal h1 {
+    font-size: 18px;
+    padding-bottom: 10px;
+}
+
+.modal p {
+    font-size: 14px;
+    padding-bottom: 10px;
+}
+
+#modal-file-upload {
+    display: none;
+}
+
+.close {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 0.5rem 0.75rem;
+    margin-left: 10px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    font-weight: 700;
+    line-height: 1.0;
+    background: none;
+    color: gray;
+}
+
+.close:hover {
+    color: revert;
+}
+
+.custom-button {
+    background-color: #ccc;
+    margin-top: 6px;
+    padding: 7px 16px;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.custom-button:hover {
+    background-color: #4fc46f;
+    color: white;
+    transition-property: all;
+    transition-duration: 150ms;
+    transition-timing-function: ease-in-out;
+    transition-delay: 0s;
+}
+
+.right-filter {
+    grid-column: 3;
+    grid-row: 2;
+
+    padding: 0px 5px 5px 5px;
+    background-color: steelblue;
+}
+
+.right-filter .buttons {
+    margin-top: 50px;
+}
+
+.navbar {
+    background-color: steelblue;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+
+    grid-column: 1/4;
+    grid-row: 1;
+}
+
+  .navbar-title {
+    margin: 0;
+    color: white;
+  }
+
+  .badge {
+    margin-left: 5px;
+  }
+
+  .navbar-link {
+    color: white;
+    text-decoration: none;
+    padding: 10px;
+  }
+
+  .navbar-link:hover {
+    background-color: #ddd;
+    color: black;
+  }
+
+  .navbar-text {
+    color: white;
+  }
+
+
+.navbar a {
+    float: left;
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+.navbar a:hover {
+    background-color: #ddd;
+    color: black;
+}
+
+.navbar a.active {
+    background-color: #4f57c4;
+    color: white;
+}
+
+.footer {
+    grid-column: 1/4;
+    grid-row: 3;
+    background-color: steelblue;
+    text-align: center;
+}
+
+
+#cluster-information {
+    color: white;
+    padding: 5px;
+    text-align: center;
+}
+
+#cluster-information table {
+    width: 100%;
+}
+
+#cluster-information tbody td {
+    width: 30%;
+    padding: 0.2em 0.5em;
+}
+
+#cluster-information tbody td:nth-child(2) {
+    text-align: right;
+}
+#cluster-information tbody td:last-child {
+    text-align: left;
+}
+
+#cluster-information thead th:first-child, #cluster-information tbody td:first-child {
+    text-align: right;
+    font-weight: 600;
+}
+

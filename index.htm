@@ -1,0 +1,443 @@
+﻿<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Visual Analytics Project Group 8</title>
+    <script src="d3v7.8.5.min.js"></script>
+    <script src="interaction.js"></script>
+    <script src="GraphRenderer.js"></script>
+    <script src="openFile.js"></script>
+
+    <link rel="stylesheet" href="bootstrap4.5.2.min.css" />
+    <link rel="stylesheet" type="text/css" href="app.css" />
+  </head>
+  <body>
+    <div class="navbar">
+      <span class="navbar-text">Reddit Data Extraction</span>
+      <span class="display-6 navbar-title">
+        Visual Analytics Group :
+        <span class="badge badge-primary">8</span>
+      </span>
+    </div>
+
+    <div id="canvas">
+      <svg
+              id="reddit_graph"
+              xmlns="http://www.w3.org/2000/svg"
+
+              preserveAspectRatio="xMidYMid slice"
+              width="100%" height="100%"
+      >
+        <defs>
+          <marker
+                  id="arrow"
+                  viewBox="0 0 8 8"
+                  refX="6"
+                  refY="4"
+                  markerWidth="6"
+                  markerHeight="6"
+                  orient="auto-start-reverse"
+                  fill="black"
+                  fill-opacity="1"
+          >
+            <path d="M 0 0 L 8 4 L 0 8 z" />
+          </marker>
+          <filter
+                  id="dropshadow"
+                  x="-60%"
+                  y="-60%"
+                  height="300%"
+                  width="300%"
+          >
+            <feOffset result="offOut" in="SourceAlpha" dx="4" dy="4" />
+            <feGaussianBlur
+                    result="blurOut"
+                    in="offOut"
+                    stdDeviation="5"
+            />
+            <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
+          </filter>
+        </defs>
+      </svg>
+    </div>
+
+    <div id="menubar" class="controls">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-8">
+            <div class="form-group">
+              <input
+                      class="form-control"
+                      type="text"
+                      id="filename"
+                      placeholder="upload your file..."
+                      readonly
+              />
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="form-group">
+              <div class="input-group">
+                <div class="custom-file">
+                  <input
+                          type="file"
+                          class="custom-file-input"
+                          id="browse"
+                          name="fileupload"
+                          accept=".json"
+                          onchange="onChangeFile(event)"
+                  />
+                  <button
+                          class="btn btn-success mt-2"
+                          type="button"
+                          onclick="document.getElementById('browse').click()"
+                  >
+                    <i class="bi bi-upload"></i> Upload File
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-------------------------------------------------------------------------------------->
+      <fieldset>
+
+        <h6>Interaction</h6>
+
+        <table class="menu" border="0" cellpadding="0" cellspacing="1">
+          <tr>
+            <td class="paramlabel">Freeze</td>
+            <td class="param">
+              <label class="switch"
+              ><input id="menu_freeze" type="checkbox" /><span
+                      class="slider"
+              ></span
+              ></label>
+            </td>
+          </tr>
+          <tr>
+
+            <td class="paramlabel">Set Colormap</td>
+            <td class="param">
+              <label class="switch"
+              ><input
+                      id="menu_enable_colormap"
+                      type="checkbox" /><span class="slider"></span
+              ></label>
+            </td>
+          </tr>
+
+          <tr>
+            <td class="paramlabel">Node Colors</td>
+            <td class="param">
+              <select id="menu_colorize_nodes_by" name="colorize_nodes_by" class="input-on-change">
+                <option value="toxicity">Toxicity</option>
+                <option value="links"># of links</option>
+                <option value="message">Message length</option>
+              </select>
+            </td>
+          </tr>
+
+          <tr>
+            <td class="paramlabel">Colorscheme</td>
+            <td class="param">
+              <input id="menu_color_start" class="input-on-change" name="node_color_start" type="color" value="#56FC03">
+              <input id="menu_color_end" class="input-on-change" name="node_color_end" type="color" value="#ff0000">
+            </td>
+          </tr>
+
+
+          <tr>
+            <td class="paramlabel">Edge Colors</td>
+            <td class="param">
+              <select id="menu_colorize_edge_by" name="colorize_edges_by" class="input-on-change">
+                <option value="toxicity">Toxicity</option>
+<!--                <option value="links"># of links</option>-->
+                <option value="message">Message length</option>
+              </select>
+            </td>
+          </tr>
+
+          <tr>
+            <td class="paramlabel">Colorscheme</td>
+            <td class="param">
+              <input id="menu_color_edge_start" class="input-on-change" name="edge_color_start" type="color" value="#56FC03">
+              <input id="menu_color_edge_end" class="input-on-change" name="edge_color_end" type="color" value="#ff0000">
+            </td>
+          </tr>
+
+
+
+
+          <tr>
+            <td class="paramlabel">Set Clusters</td>
+            <td class="param">
+              <label class="switch"
+              ><input id="menu_set_clusters" type="checkbox" /><span
+                      class="slider"
+              ></span
+              ></label>
+            </td>
+          </tr>
+
+          <tr>
+            <td class="paramlabel">Cluster Type</td>
+            <td class="param">
+              <select id="menu_cluster_type">
+                <option value="toxicity">Toxicity</option>
+                <option value="links"># of links</option>
+                <option value="message">Message length</option>
+              </select>
+            </td>
+          </tr>
+
+          <tr>
+            <td class="paramlabel">Node Radius Mod</td>
+            <td class="param">
+              <select id="menu_node_radius_metric" name="size_nodes_by" class="input-on-change">
+                <option value="samesize">All same size</option>
+                <option value="toxicity">Toxicity</option>
+                <option value="links"># of links</option>
+                <option value="message">Message length</option>
+              </select>
+            </td>
+          </tr>
+
+
+          <tr>
+            <td class="paramlabel">Filter Edges</td>
+            <td class="param">
+              <select id="menu_filter_edges" name="filter_edges_by" class="input-on-change">
+                <option value="nofilter">No Filter</option>
+                <option value="toxicity">Toxicity</option>
+                <option value="links"># of links</option>
+                <option value="message">Message length</option>
+              </select>
+            </td>
+          </tr>
+
+          <tr>
+            <td colspan="2">
+              <input type="range" class="input-on-change" name="filter_edges_min" value="0" max="1" min="0" step="0.05">
+            </td>
+          </tr>
+          <tr>
+            <td colspan="2">
+              <input type="range" class="input-on-change" name="filter_edges_max" value="1" max="1" min="0" step="0.05">
+            </td>
+          </tr>
+
+          <tr>
+            <td class="paramlabel">Max. Clusters</td>
+            <td class="param">
+              <input  name="max_clusters"
+                      type="number"
+                      id="menu_max_clusters"
+                      min="0"
+                      max="500"
+                      step="1"
+                      value="0"
+                      class="paramspinbox input-on-change"
+              />
+            </td>
+          </tr>
+
+        </table>
+      </fieldset>
+      <!-------------------------------------------------------------------------------------->
+      <fieldset>
+        <h6>Layout Manipulation</h6>
+
+        <table class="menu" border="0" cellpadding="0" cellspacing="1">
+          <tbody>
+          <tr>
+            <td class="paramlabel">Gravity X:</td>
+            <td class="param">
+              <input
+                      type="number"
+                      id="menu_gravity_x"
+                      min="0"
+                      step="0.01"
+                      value="0.1"
+                      class="paramspinbox"
+              />
+            </td>
+          </tr>
+          <tr>
+            <td class="paramlabel">Gravity Y:</td>
+            <td class="param">
+              <input
+                      type="number"
+                      id="menu_gravity_y"
+                      min="0"
+                      step="0.01"
+                      value="0.1"
+                      class="paramspinbox"
+              />
+            </td>
+          </tr>
+          <tr>
+            <td class="paramlabel">Repulsion Strength:</td>
+            <td class="param">
+              <input
+                      type="number"
+                      id="menu_repulsion_strength"
+                      min="0"
+                      step="1"
+                      value="2000"
+                      class="paramspinbox"
+              />
+            </td>
+          </tr>
+          <tr>
+            <td class="paramlabel">Link Strength:</td>
+            <td class="param">
+              <input
+                      type="number"
+                      id="menu_link_strength"
+                      disabled="disabled"
+                      min="0"
+                      step="0.1"
+                      value="2"
+                      class="paramspinbox"
+              />
+            </td>
+          </tr>
+
+          <tr>
+            <td class="paramlabel">Friction:</td>
+            <td class="param">
+              <input
+                      type="number"
+                      id="menu_friction"
+                      min="0.0"
+                      max="1.0"
+                      step="0.1"
+                      value="0.0"
+                      class="paramspinbox"
+              />
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </fieldset>
+    </div>
+
+    <div class="right-filter controls">
+
+      <!-------------------------------------------------------------------------------------->
+      <fieldset>
+
+        <h6>Graph Appearance</h6>
+
+        <table class="menu" border="0" cellpadding="0" cellspacing="1">
+          <tbody>
+          <tr>
+            <td class="paramlabel">Show Graph</td>
+            <td class="param">
+              <label class="switch"
+              ><input id="menu_show_graph" type="checkbox" /><span
+                      class="slider"
+              ></span
+              ></label>
+            </td>
+          </tr>
+
+          <tr>
+            <td class="paramlabel">Show Links</td>
+            <td class="param">
+              <label class="switch"
+              ><input id="menu_show_links" type="checkbox" /><span
+                      class="slider"
+              ></span
+              ></label>
+            </td>
+          </tr>
+          <tr>
+            <td class="paramlabel">Show Names</td>
+            <td class="param">
+              <label class="switch"
+              ><input id="menu_show_names" type="checkbox" /><span
+                      class="slider"
+              ></span
+              ></label>
+            </td>
+          </tr>
+
+
+          <tr>
+            <td class="paramlabel">Show Tooltips</td>
+            <td class="param">
+              <label class="switch"
+              ><input id="menu_show_tooltips" type="checkbox" /><span
+                      class="slider"
+              ></span
+              ></label>
+            </td>
+          </tr>
+
+          <tr>
+            <td class="paramlabel">Link Width:</td>
+            <td class="param">
+              <input
+                      type="number"
+                      id="menu_linkwidth"
+                      min="1"
+                      max="20"
+                      step="1"
+                      value="6"
+                      class="paramspinbox"
+              />
+            </td>
+          </tr>
+          <tr>
+            <td class="paramlabel">Node Radius:</td>
+            <td class="param">
+              <input
+                      type="number"
+                      id="menu_noderadius"
+                      min="1"
+                      max="100"
+                      step="1"
+                      value="30"
+                      class="paramspinbox"
+              />
+            </td>
+          </tr>
+          <tr>
+            <td class="paramlabel">Node Label Opacity:</td>
+            <td class="param">
+              <input
+                      type="number"
+                      id="menu_pnodeopacity"
+                      min="0.0"
+                      max="1.0"
+                      step="0.1"
+                      value="1.0"
+                      class="paramspinbox"
+              />
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </fieldset>
+
+      <div id="cluster-information">
+
+      </div>
+    </div>
+
+    <script>
+      renderer = new GraphRenderer();
+      setDefaultParameters();
+      renderer.createForceGraphJSON({nodes: [], links: []});
+    </script>
+
+    <div class="footer">
+      &copy;Visual Analytics Group 8. All rights reserved. | Ekaterina
+      Baikova| Nathaniel Benkö | Alexander Schuc | Vishnu Viswambharan
+    </div>
+  </body>
+</html>

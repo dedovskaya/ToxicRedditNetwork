@@ -1,0 +1,6 @@
+python main.py subredditname topiclimit
+
+resolving user-ids to their usernames can be enabled with the flag --fetch-users
+increases time to fetch the dataset
+
+access keys and password are not added to the git repo; please use your own
